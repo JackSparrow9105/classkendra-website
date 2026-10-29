@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
+  body { @apply bg-white text-gray-900 font-sans antialiased; }
+}
+
+@layer components {
+  .container-x { @apply max-w-6xl mx-auto px-4 sm:px-6; }
+  .section { @apply py-20 md:py-28; }
+  .eyebrow { @apply inline-block text-xs font-bold tracking-widest uppercase text-indigo-600 mb-3; }
+  .section-title { @apply text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900; }
+  .section-sub { @apply mt-4 text-lg text-gray-600 max-w-2xl; }
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 bg-indigo-600 text-white font-semibold
+      px-5 py-2.5 rounded-xl shadow-sm hover:bg-indigo-700 focus-visible:outline-none
+      focus-visible:ring-4 focus-visible:ring-indigo-200 transition;
+  }
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 bg-white text-indigo-700 font-semibold
+      px-5 py-2.5 rounded-xl border-2 border-indigo-100 hover:border-indigo-300
+      focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-100 transition;
+  }
+  .card { @apply bg-white rounded-2xl border border-gray-100 shadow-sm; }
+  .input {
+    @apply w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-gray-900
+      placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-400 transition;
+  }
+  .phone {
+    @apply relative w-[290px] h-[580px] bg-gray-900 rounded-[3rem] p-3 shadow-2xl border-4 border-gray-800;
+  }
+  .phone-screen { @apply w-full h-full bg-gray-50 rounded-[2.3rem] overflow-hidden flex flex-col; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
