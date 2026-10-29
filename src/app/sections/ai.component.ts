@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { LangService } from '../i18n/lang.service';
 
 @Component({
   selector: 'app-ai',
@@ -11,9 +12,9 @@ import { Component } from '@angular/core';
         <div>
           <span class="inline-block bg-gradient-to-r from-pink-500 to-purple-500 px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase shadow-lg">New &amp; Premium</span>
           <h2 class="mt-5 text-4xl md:text-5xl font-extrabold leading-tight">ClassKendra AI <span class="text-purple-300">✨</span></h2>
-          <p class="mt-5 text-xl text-indigo-100/90 leading-relaxed">Sirf manage mat karo, institute grow karo. AI aapka personal business manager hai — 24/7.</p>
+          <p class="mt-5 text-xl text-indigo-100/90 leading-relaxed">{{ c().lead }}</p>
           <ul class="mt-10 space-y-7">
-            @for (f of features; track f.title) {
+            @for (f of c().features; track $index) {
               <li class="flex items-start gap-4">
                 <div class="shrink-0 bg-white/10 p-3 rounded-xl border border-white/20 text-2xl">{{ f.icon }}</div>
                 <div>
@@ -61,10 +62,27 @@ import { Component } from '@angular/core';
   `,
 })
 export class AiComponent {
-  readonly features = [
-    { icon: '📈', title: 'Revenue Prediction', text: 'Parents ke payment pattern se agle mahine ka fee collection pehle se bataata hai.' },
-    { icon: '⚠️', title: 'Student Drop-out Alert', text: 'Girti attendance pakad kar aapko alert karta hai — student chhodne se pehle.' },
-    { icon: '🤖', title: 'Smart WhatsApp Auto-Responder', text: 'Fees, timetable aur marks ke sawaalon ka jawaab khud deta hai, 24/7.' },
-    { icon: '✍️', title: 'Report Card Remarks', text: 'Har student ke marks aur attendance dekh kar personal remarks likh deta hai.' },
-  ];
+  private readonly L = inject(LangService);
+
+  private readonly copy = {
+    hi: {
+      lead: 'Sirf manage mat karo, institute grow karo. AI aapka personal business manager hai — 24/7.',
+      features: [
+        { icon: '📈', title: 'Revenue Prediction', text: 'Parents ke payment pattern se agle mahine ka fee collection pehle se bataata hai.' },
+        { icon: '⚠️', title: 'Student Drop-out Alert', text: 'Girti attendance pakad kar aapko alert karta hai — student chhodne se pehle.' },
+        { icon: '🤖', title: 'Smart WhatsApp Auto-Responder', text: 'Fees, timetable aur marks ke sawaalon ka jawaab khud deta hai, 24/7.' },
+        { icon: '✍️', title: 'Report Card Remarks', text: 'Har student ke marks aur attendance dekh kar personal remarks likh deta hai.' },
+      ],
+    },
+    en: {
+      lead: "Don't just manage your institute — grow it. AI works as your personal business manager, 24/7.",
+      features: [
+        { icon: '📈', title: 'Revenue Prediction', text: "Predicts next month's fee collection from parents' payment patterns." },
+        { icon: '⚠️', title: 'Student Drop-out Alert', text: 'Spots falling attendance and alerts you before a student leaves.' },
+        { icon: '🤖', title: 'Smart WhatsApp Auto-Responder', text: 'Answers questions about fees, timetable and marks on its own, 24/7.' },
+        { icon: '✍️', title: 'Report Card Remarks', text: 'Writes personal remarks for each student based on their marks and attendance.' },
+      ],
+    },
+  };
+  readonly c = computed(() => this.copy[this.L.lang()]);
 }

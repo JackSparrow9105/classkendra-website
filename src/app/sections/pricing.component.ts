@@ -1,8 +1,9 @@
-import { Component, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { LangService } from '../i18n/lang.service';
 
 interface Plan {
   name: string;
-  tagline: string;
+  tagline: { hi: string; en: string };
   students: string;
   monthly: number;
   /** WhatsApp messages included per month */
@@ -20,7 +21,7 @@ interface Plan {
         <div class="text-center max-w-2xl mx-auto">
           <span class="eyebrow">Pricing</span>
           <h2 class="section-title">Simple Pricing for Every Institute</h2>
-          <p class="section-sub mx-auto">14 din free try karo. Koi hidden fees nahi. Kabhi bhi cancel.</p>
+          <p class="section-sub mx-auto">{{ c().sub }}</p>
         </div>
 
         <div class="mt-10 flex justify-center">
@@ -41,7 +42,7 @@ interface Plan {
                 <span class="absolute -top-4 left-1/2 -translate-x-1/2 whitespace-nowrap bg-indigo-600 text-white px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase shadow-md">Most Popular</span>
               }
               <h3 class="text-xl font-bold">{{ p.name }} @if (p.variant === 'ai') { <span>✨</span> }</h3>
-              <p class="mt-1 text-sm" [class]="muted(p)">{{ p.tagline }}</p>
+              <p class="mt-1 text-sm" [class]="muted(p)">{{ p.tagline[L.lang()] }}</p>
 
               <div class="mt-5 flex items-end gap-1">
                 <span class="text-4xl font-extrabold">₹{{ fmt(price(p)) }}</span>
@@ -84,43 +85,63 @@ interface Plan {
         <div class="mt-10 card p-5 sm:p-6 flex flex-col md:flex-row md:items-center gap-5">
           <div class="w-12 h-12 shrink-0 rounded-xl bg-green-50 grid place-items-center text-2xl">💬</div>
           <div class="flex-1">
-            <h3 class="font-bold text-gray-900">Messages khatam ho gaye? Top-up kar lo.</h3>
+            <h3 class="font-bold text-gray-900">{{ c().topTitle }}</h3>
             <p class="mt-1 text-sm text-gray-600">
-              Extra pack: <b>{{ fmt(topUp.messages) }} messages – ₹{{ topUp.price }}</b>. Har fee reminder, absent alert, receipt aur result = 1 message.
-              Limit ke 80% par aapko alert milega. Monthly messages agle mahine carry-forward nahi hote.
+              Extra pack: <b>{{ fmt(topUp.messages) }} messages – ₹{{ topUp.price }}</b>. {{ c().topText }}
             </p>
           </div>
-          <a href="#faq" class="btn-outline text-sm whitespace-nowrap">Kitne messages chahiye?</a>
+          <a href="#faq" class="btn-outline text-sm whitespace-nowrap">{{ c().topCta }}</a>
         </div>
 
-        <p class="mt-8 text-center text-sm text-gray-500">500+ students ya multiple branches? <a href="#contact" class="text-indigo-600 font-semibold hover:underline">Custom plan ke liye baat karein →</a></p>
+        <p class="mt-8 text-center text-sm text-gray-500">{{ c().custom }} <a href="#contact" class="text-indigo-600 font-semibold hover:underline">{{ c().customLink }}</a></p>
       </div>
     </section>
   `,
 })
 export class PricingComponent {
+  readonly L = inject(LangService);
   readonly yearly = signal(false);
+
+  private readonly copy = {
+    hi: {
+      sub: '14 din free try karo. Koi hidden fees nahi. Kabhi bhi cancel.',
+      topTitle: 'Messages khatam ho gaye? Top-up kar lo.',
+      topText: 'Har fee reminder, absent alert, receipt aur result = 1 message. Limit ke 80% par aapko alert milega. Monthly messages agle mahine carry-forward nahi hote.',
+      topCta: 'Kitne messages chahiye?',
+      custom: '500+ students ya multiple branches?',
+      customLink: 'Custom plan ke liye baat karein →',
+    },
+    en: {
+      sub: 'Try free for 14 days. No hidden fees. Cancel anytime.',
+      topTitle: 'Ran out of messages? Top up anytime.',
+      topText: "Every fee reminder, absence alert, receipt or result = 1 message. You'll get an alert at 80% of your limit. Unused monthly messages don't carry forward.",
+      topCta: 'How many do I need?',
+      custom: '500+ students or multiple branches?',
+      customLink: 'Talk to us about a custom plan →',
+    },
+  };
+  readonly c = computed(() => this.copy[this.L.lang()]);
 
   readonly topUp = { messages: 1000, price: 249 };
 
   readonly plans: Plan[] = [
     {
-      name: 'Mini', tagline: 'Home tutors ke liye', students: 'Up to 40 students', monthly: 199, messages: 300,
+      name: 'Mini', tagline: { hi: 'Home tutors ke liye', en: 'For home tutors' }, students: 'Up to 40 students', monthly: 199, messages: 300,
       variant: 'basic', cta: 'Start Free',
       features: ['Digital Khata (Fee Tracking)', 'Mobile Attendance', 'Manual WhatsApp Reminders', 'PDF Receipts'],
     },
     {
-      name: 'Starter', tagline: 'Chhoti tuition classes', students: 'Up to 100 students', monthly: 499, messages: 1000,
+      name: 'Starter', tagline: { hi: 'Chhoti tuition classes', en: 'Small tuition classes' }, students: 'Up to 100 students', monthly: 499, messages: 1000,
       variant: 'basic', cta: 'Start Free',
       features: ['Everything in Mini', 'Unlimited batches', 'Excel import & export', 'Fee & attendance reports'],
     },
     {
-      name: 'Growth', tagline: 'Growing coaching institutes', students: 'Up to 300 students', monthly: 999, messages: 3000,
+      name: 'Growth', tagline: { hi: 'Badhte coaching institutes', en: 'Growing coaching institutes' }, students: 'Up to 300 students', monthly: 999, messages: 3000,
       variant: 'popular', cta: 'Get Started',
       features: ['Everything in Starter', 'Automated WhatsApp Reminders', 'Absent alerts to parents', 'Test Marks Broadcast', 'Multi-admin & staff roles'],
     },
     {
-      name: 'AI Pro', tagline: 'Bade institutes & schools', students: 'Unlimited students', monthly: 1999, messages: 6000,
+      name: 'AI Pro', tagline: { hi: 'Bade institutes & schools', en: 'Large institutes & schools' }, students: 'Unlimited students', monthly: 1999, messages: 6000,
       variant: 'ai', cta: 'Upgrade to AI',
       features: ['Everything in Growth', 'AI Revenue Predictions', 'AI Drop-out Alerts', '24/7 AI Parent Chatbot', 'Priority support'],
     },

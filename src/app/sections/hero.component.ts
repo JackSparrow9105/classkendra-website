@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { LangService } from '../i18n/lang.service';
 
 @Component({
   selector: 'app-hero',
@@ -11,31 +12,30 @@ import { Component } from '@angular/core';
         <div class="text-center lg:text-left">
           <span class="inline-flex items-center gap-2 bg-white border border-indigo-100 text-indigo-700 px-4 py-1.5 rounded-full text-sm font-semibold shadow-sm mb-6">
             <span class="w-2 h-2 rounded-full bg-green-500"></span>
-            Built for Tuition Centres, Coaching &amp; Schools
+            {{ c().badge }}
           </span>
           <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.08] text-gray-900">
-            Aapki Class Ka<br />
-            <span class="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Digital Khata</span>
+            {{ c().h1a }}<br />
+            <span class="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">{{ c().h1b }}</span>
           </h1>
           <p class="mt-6 text-lg sm:text-xl text-gray-600 max-w-xl mx-auto lg:mx-0">
-            Fees, attendance aur test marks — sab ek app mein. Automatic reminders seedhe parents ke
-            <span class="font-semibold text-gray-800">WhatsApp</span> par. Payment ke peeche bhaagna band, padhane par focus shuru.
+            {{ c().p1 }}<span class="font-semibold text-gray-800">WhatsApp</span>{{ c().p2 }}
           </p>
           <div class="mt-9 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-            <a href="#pricing" class="btn-primary text-lg px-7 py-3.5 shadow-lg shadow-indigo-200">Start 14-Day Free Trial</a>
+            <a href="#pricing" class="btn-primary text-lg px-7 py-3.5 shadow-lg shadow-indigo-200">{{ c().cta }}</a>
             <a href="#demo" class="btn-outline text-lg px-7 py-3.5">
               <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-              See it in action
+              {{ c().cta2 }}
             </a>
           </div>
           <ul class="mt-8 flex flex-wrap gap-x-6 gap-y-2 justify-center lg:justify-start text-sm text-gray-500 font-medium">
-            <li class="flex items-center gap-1.5"><span class="text-green-600">✓</span> No credit card</li>
-            <li class="flex items-center gap-1.5"><span class="text-green-600">✓</span> Hindi &amp; English</li>
-            <li class="flex items-center gap-1.5"><span class="text-green-600">✓</span> Works on any phone</li>
+            @for (t of c().ticks; track t) {
+              <li class="flex items-center gap-1.5"><span class="text-green-600">✓</span> {{ t }}</li>
+            }
           </ul>
         </div>
 
-        <!-- WhatsApp preview -->
+        <!-- WhatsApp preview (stays Hinglish: this is what parents actually receive) -->
         <div class="relative mx-auto w-full max-w-md">
           <div class="rounded-3xl shadow-2xl overflow-hidden border border-gray-200 bg-white">
             <div class="bg-whatsapp-dark text-white px-5 py-3.5 flex items-center gap-3">
@@ -64,7 +64,7 @@ import { Component } from '@angular/core';
           <div class="absolute -bottom-6 -left-4 sm:-left-10 card px-4 py-3 flex items-center gap-3 shadow-xl">
             <div class="w-10 h-10 rounded-xl bg-green-100 text-green-700 grid place-items-center text-lg">₹</div>
             <div>
-              <p class="text-xs text-gray-500 font-medium">Fee received</p>
+              <p class="text-xs text-gray-500 font-medium">{{ c().received }}</p>
               <p class="font-extrabold text-gray-900">₹2,500 · Aarav</p>
             </div>
           </div>
@@ -73,4 +73,32 @@ import { Component } from '@angular/core';
     </section>
   `,
 })
-export class HeroComponent {}
+export class HeroComponent {
+  private readonly L = inject(LangService);
+
+  private readonly copy = {
+    hi: {
+      badge: 'Tuition, Coaching aur Schools ke liye',
+      h1a: 'Aapki Class Ka',
+      h1b: 'Digital Khata',
+      p1: 'Fees, attendance aur test marks — sab ek app mein. Automatic reminders seedhe parents ke ',
+      p2: ' par. Payment ke peeche bhaagna band, padhane par focus shuru.',
+      cta: '14 Din Free Try Karein',
+      cta2: 'Demo dekhiye',
+      ticks: ['Credit card nahi chahiye', 'Hindi & English', 'Kisi bhi phone par chalta hai'],
+      received: 'Fees mil gayi',
+    },
+    en: {
+      badge: 'Built for Tuition Centres, Coaching Institutes & Schools',
+      h1a: 'Your Classes,',
+      h1b: 'On Autopilot',
+      p1: 'Fees, attendance and test marks in one app. Automatic reminders go straight to parents on ',
+      p2: '. Stop chasing payments and get back to teaching.',
+      cta: 'Start 14-Day Free Trial',
+      cta2: 'See it in action',
+      ticks: ['No credit card', 'Hindi & English', 'Works on any phone'],
+      received: 'Fee received',
+    },
+  };
+  readonly c = computed(() => this.copy[this.L.lang()]);
+}

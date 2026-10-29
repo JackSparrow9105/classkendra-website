@@ -1,4 +1,5 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { LangService } from '../i18n/lang.service';
 
 type TabId = 'dashboard' | 'attendance' | 'parent';
 
@@ -16,7 +17,7 @@ interface Student {
         <div class="text-center max-w-2xl mx-auto">
           <span class="eyebrow">Live demo</span>
           <h2 class="section-title">See ClassKendra in Action</h2>
-          <p class="section-sub mx-auto">Tab chuniye aur try kijiye — attendance screen par students ko tap karke dekhiye.</p>
+          <p class="section-sub mx-auto">{{ ui().sub }}</p>
         </div>
 
         <div class="mt-10 flex justify-center">
@@ -55,14 +56,14 @@ interface Student {
                 @switch (active()) {
                   @case ('dashboard') {
                     <div class="bg-indigo-600 text-white px-5 pt-10 pb-6 rounded-b-3xl">
-                      <p class="text-indigo-200 text-xs">Namaste, Sharma Sir 👋</p>
+                      <p class="text-indigo-200 text-xs">{{ ui().hello }}</p>
                       <h4 class="font-bold text-lg">Today's Overview</h4>
                     </div>
                     <div class="p-4 space-y-4 overflow-y-auto">
                       <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
                         <p class="text-gray-500 text-[11px] font-bold uppercase tracking-wider">Pending Fees</p>
                         <p class="text-3xl font-extrabold text-red-500 mt-1">₹{{ pendingFees() }}</p>
-                        <p class="text-xs text-gray-500 mt-1">{{ reminderSent() ? '18 parents ko reminder bheja gaya ✓' : '18 students · 6 overdue' }}</p>
+                        <p class="text-xs text-gray-500 mt-1">{{ reminderSent() ? ui().sent : '18 students · 6 overdue' }}</p>
                         <button (click)="reminderSent.set(true)" [disabled]="reminderSent()"
                           class="mt-3 w-full text-sm font-bold py-2.5 rounded-xl flex items-center justify-center gap-2 transition"
                           [class.bg-whatsapp]="!reminderSent()" [class.text-white]="!reminderSent()"
@@ -163,29 +164,64 @@ interface Student {
   `,
 })
 export class DemoComponent {
-  readonly tabs: { id: TabId; label: string; title: string; text: string; points: string[] }[] = [
-    {
-      id: 'dashboard', label: 'Dashboard',
-      title: 'Poora institute, ek screen par',
-      text: 'Subah app kholo aur turant dekho — kitni fees pending hai, aaj kaun aaya, is mahine kitna collect hua.',
-      points: ['Pending fees aur defaulters list', 'Ek tap mein sabko WhatsApp reminder', 'Monthly collection ka live hisaab'],
-    },
-    {
-      id: 'attendance', label: 'Attendance',
-      title: '30 students, 2 minute',
-      text: 'Default sab present. Sirf absent students par tap karo aur save — parents ko alert apne aap chala jaata hai.',
-      points: ['Batch-wise attendance', 'Absent par turant parent alert', 'Monthly attendance report'],
-    },
-    {
-      id: 'parent', label: 'Parent view',
-      title: 'Parents ko koi app download nahi karni',
-      text: 'Sab updates seedhe unke WhatsApp par aate hain — absent alert, fee receipt, test result.',
-      points: ['Professional messages aapke institute ke naam se', 'PDF receipts automatic', 'Parents reply bhi kar sakte hain'],
-    },
+  private readonly L = inject(LangService);
+
+  readonly tabs: { id: TabId; label: string }[] = [
+    { id: 'dashboard', label: 'Dashboard' },
+    { id: 'attendance', label: 'Attendance' },
+    { id: 'parent', label: 'Parent view' },
   ];
 
+  private readonly copy = {
+    hi: {
+      sub: 'Tab chuniye aur try kijiye — attendance screen par students ko tap karke dekhiye.',
+      hello: 'Namaste, Sharma Sir 👋',
+      sent: '18 parents ko reminder bheja gaya ✓',
+      tabs: {
+        dashboard: {
+          title: 'Poora institute, ek screen par',
+          text: 'Subah app kholo aur turant dekho — kitni fees pending hai, aaj kaun aaya, is mahine kitna collect hua.',
+          points: ['Pending fees aur defaulters list', 'Ek tap mein sabko WhatsApp reminder', 'Monthly collection ka live hisaab'],
+        },
+        attendance: {
+          title: '30 students, 2 minute',
+          text: 'Default sab present. Sirf absent students par tap karo aur save — parents ko alert apne aap chala jaata hai.',
+          points: ['Batch-wise attendance', 'Absent par turant parent alert', 'Monthly attendance report'],
+        },
+        parent: {
+          title: 'Parents ko koi app download nahi karni',
+          text: 'Sab updates seedhe unke WhatsApp par aate hain — absent alert, fee receipt, test result.',
+          points: ['Professional messages aapke institute ke naam se', 'PDF receipts automatic', 'Parents reply bhi kar sakte hain'],
+        },
+      },
+    },
+    en: {
+      sub: 'Pick a tab and try it — tap students on the attendance screen.',
+      hello: 'Hello, Sharma Sir 👋',
+      sent: 'Reminder sent to 18 parents ✓',
+      tabs: {
+        dashboard: {
+          title: 'Your whole institute on one screen',
+          text: "Open the app in the morning and see instantly: pending fees, who came today, and how much you've collected this month.",
+          points: ['Pending fees and defaulters list', 'WhatsApp reminders to everyone in one tap', 'Live monthly collection totals'],
+        },
+        attendance: {
+          title: '30 students, 2 minutes',
+          text: 'Everyone starts as present. Tap only the absent students and save — parents are alerted automatically.',
+          points: ['Batch-wise attendance', 'Instant alerts to parents of absent students', 'Monthly attendance report'],
+        },
+        parent: {
+          title: "Parents don't need to download anything",
+          text: 'Every update lands right in their WhatsApp — absence alerts, fee receipts, test results.',
+          points: ["Professional messages in your institute's name", 'Automatic PDF receipts', 'Parents can reply too'],
+        },
+      },
+    },
+  };
+  readonly ui = computed(() => this.copy[this.L.lang()]);
+
   readonly active = signal<TabId>('dashboard');
-  readonly current = computed(() => this.tabs.find((t) => t.id === this.active())!);
+  readonly current = computed(() => this.ui().tabs[this.active()]);
   readonly reminderSent = signal(false);
   readonly pendingFees = signal('45,000');
 

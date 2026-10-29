@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { LangService } from '../i18n/lang.service';
 
 @Component({
   selector: 'app-footer',
@@ -10,7 +11,7 @@ import { Component } from '@angular/core';
             <a href="#top" class="flex items-center gap-2 text-xl font-extrabold text-white">
               <span class="grid place-items-center w-9 h-9 rounded-xl bg-indigo-600">📘</span> ClassKendra
             </a>
-            <p class="mt-4 text-sm leading-relaxed max-w-xs">Aapki Class Ka Digital Khata. Fees, attendance aur parent updates — sab WhatsApp par.</p>
+            <p class="mt-4 text-sm leading-relaxed max-w-xs">{{ tagline() }}</p>
           </div>
           @for (col of columns; track col.title) {
             <div>
@@ -36,6 +37,12 @@ import { Component } from '@angular/core';
   `,
 })
 export class FooterComponent {
+  private readonly L = inject(LangService);
+  readonly tagline = computed(() =>
+    this.L.lang() === 'en'
+      ? 'Your institute\'s digital ledger. Fees, attendance and parent updates — all on WhatsApp.'
+      : 'Aapki Class Ka Digital Khata. Fees, attendance aur parent updates — sab WhatsApp par.',
+  );
   readonly year = new Date().getFullYear();
 
   readonly columns = [
